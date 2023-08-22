@@ -114,6 +114,10 @@ const typeDefs = `
       published: Int!
       genres: [String!]!
     ): Book
+    editAuthor(
+      name: String!
+      setBornTo: Int!
+    ): Author
   }
 
   type Book {
@@ -178,6 +182,24 @@ const resolvers = {
       }
 
       return book
+    },
+    editAuthor: (_, args) => {
+      const authorIdx = authors.findIndex(a => a.name === args.name)
+      if (authorIdx < 0) {
+        // throw new GraphQLError('Author not found', {
+        //   extensions: {
+        //     code: 'BAD_USER_INPUT',
+        //     invalidArgs: args.name
+        //   }
+        // })
+        return null
+      }
+
+      const author = authors[authorIdx]
+      const updatedAuthor = { ...author, born: args.setBornTo }
+      authors = authors.with(authorIdx, updatedAuthor)
+
+      return updatedAuthor
     }
   }
 }
