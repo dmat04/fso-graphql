@@ -2,7 +2,7 @@ import { useQuery, useMutation } from '@apollo/client'
 import { ALL_AUTHORS, EDIT_AUTHOR } from '../queries'
 import { useState } from 'react'
 
-const BirthYearForm = () => {
+const BirthYearForm = ({ authors }) => {
   const [editAuthor] = useMutation(EDIT_AUTHOR, {
     refetchQueries: [{ query: ALL_AUTHORS }],
     onError: (error) => console.log(error)
@@ -23,7 +23,13 @@ const BirthYearForm = () => {
   return (
     <form onSubmit={submit}>
       <div>
-        name <input value={author} onChange={({ target }) => setAuthor(target.value)} />
+        <select value={author} onChange={(event) => setAuthor(event.target.value)} >
+          {
+            authors.map(a => 
+              <option key={a.id} value={a.name}>{a.name}</option>
+            )
+          }
+        </select>
       </div>
       <div>
         born <input value={year} onChange={({ target }) => setYear(target.value)} />
@@ -63,7 +69,7 @@ const Authors = () => {
       </table>
       <br/>
       <h2>Set birthyear</h2>
-      <BirthYearForm />
+      <BirthYearForm authors={authors}/>
     </div>
   )
 }
