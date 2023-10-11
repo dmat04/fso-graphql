@@ -22,7 +22,7 @@ const App = () => {
       </div>
       <br/>
       <Routes>
-        <Route path='/' element={<Navigate replace to='/authors' />} />
+        <Route path='/' element={<Navigate replace to='/books' />} />
         <Route path='/authors' element={<Authors />} />
         <Route path='/books' element={<Books />} />
         <Route path='/add' element={<NewBook />} />

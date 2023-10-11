@@ -16,7 +16,11 @@ query {
   allBooks {
     id
     title
-    author
+    author {
+      id
+      born
+      name
+    }
     published
     genres
   }
