@@ -8,7 +8,7 @@ const BirthYearForm = ({ authors }) => {
     onError: (error) => console.log(error)
   })
 
-  const [author, setAuthor] = useState('')
+  const [author, setAuthor] = useState(authors[0].name)
   const [year, setYear] = useState('')
 
   const submit = (event) => {
@@ -25,7 +25,7 @@ const BirthYearForm = ({ authors }) => {
       <div>
         <select value={author} onChange={(event) => setAuthor(event.target.value)} >
           {
-            authors.map(a => 
+            authors.map(a =>
               <option key={a.id} value={a.name}>{a.name}</option>
             )
           }
@@ -39,7 +39,7 @@ const BirthYearForm = ({ authors }) => {
   )
 }
 
-const Authors = () => {
+const Authors = ({ showForm }) => {
   const result = useQuery(ALL_AUTHORS)
 
   if (result.loading) {
@@ -67,9 +67,14 @@ const Authors = () => {
           ))}
         </tbody>
       </table>
-      <br/>
-      <h2>Set birthyear</h2>
-      <BirthYearForm authors={authors}/>
+      <br />
+      {
+        showForm &&
+        <>
+          <h2>Set birthyear</h2>
+          <BirthYearForm authors={authors} />
+        </>
+      }
     </div>
   )
 }

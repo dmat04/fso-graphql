@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useMutation } from '@apollo/client'
+import { useMutation, useQuery } from '@apollo/client'
 import { ADD_BOOK, ALL_BOOKS, ALL_AUTHORS } from '../queries'
 
 const NewBook = () => {
@@ -14,10 +14,19 @@ const NewBook = () => {
     onError: (error) => console.log(error)
   })
 
+  const authorsQuery = useQuery(ALL_AUTHORS)
+  if (authorsQuery.loading) {
+    return <div>loading authors...</div>
+  }
+
+  const authors = authorsQuery.data.allAuthors
+
   const submit = async (event) => {
     event.preventDefault()
 
-    addBook({ variables: { title, author, published: parseInt(published), genres }})
+    const authorObject = authors.find(a => a.name === author)
+
+    addBook({ variables: { title, author: authorObject.id, published: parseInt(published), genres }})
 
     setTitle('')
     setPublished('')
