@@ -28,7 +28,7 @@ const App = () => {
   }, [])
 
   useEffect(() => {
-    if (token !== null && status.called == false) {
+    if (token !== null && status.called === false) {
       getUser()
     }
 
