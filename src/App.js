@@ -5,8 +5,8 @@ import NewBook from './components/NewBook'
 import { useEffect, useState } from 'react'
 import { Link, Navigate, Route, Routes } from 'react-router-dom'
 import Logout from './components/Logout'
-import { useLazyQuery, useSubscription } from '@apollo/client'
-import { BOOK_ADDED, ME } from './queries'
+import { useLazyQuery, useSubscription, useApolloClient } from '@apollo/client'
+import { ALL_BOOKS, ALL_GENRES, BOOK_ADDED, ME } from './queries'
 import Recommendations from './components/Recommendations'
 
 const linkStyle = {
@@ -22,10 +22,30 @@ const App = () => {
   const [token, setToken] = useState(null)
   const [user, setUser] = useState(null)
   const [getUser, status] = useLazyQuery(ME)
+  const client = useApolloClient()
 
   useSubscription(BOOK_ADDED, {
     onData: ({ data }) => {
-      window.alert(`Book '${data.data.bookAdded.title}' added`)
+      const newBook = data.data.bookAdded
+
+      client.cache.updateQuery(
+        { query: ALL_BOOKS, variables: { genre: null } },
+        ({ allBooks }) => {
+          return {
+            allBooks: allBooks.concat(newBook)
+          }
+        })
+
+        client.cache.updateQuery(
+          { query: ALL_GENRES },
+          ({ allGenres }) => {
+            var genreSet = new Set(allGenres)
+            newBook.genres.forEach(g => genreSet.add(g))
+            
+            return {
+              allGenres: [...genreSet]
+            }
+          })
     }
   })
 

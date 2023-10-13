@@ -1,11 +1,18 @@
 import { useState } from 'react'
-import { useQuery } from '@apollo/client'
-import { ALL_BOOKS, ALL_GENRES } from '../queries'
+import { useMutation, useQuery } from '@apollo/client'
+import { ALL_BOOKS, ALL_GENRES, DELETE_BOOK } from '../queries'
 
 const Books = () => {
   const [genre, setGenre] = useState(null)
   const genreQuery = useQuery(ALL_GENRES)
   const result = useQuery(ALL_BOOKS, { variables: { genre: genre } })
+  const [ deleteBook ] = useMutation(DELETE_BOOK, {
+    refetchQueries: [
+      { query: ALL_BOOKS, variables: { genre: null } },
+      { query: ALL_GENRES },
+    ],
+    onError: (error) => console.log(error),
+  })
 
   const genreSelector = (genre) => {
     return () => setGenre(genre)
@@ -50,6 +57,9 @@ const Books = () => {
                 <td>{a.title}</td>
                 <td>{a.author.name}</td>
                 <td>{a.published}</td>
+                <td>
+                  <button onClick={() => deleteBook({ variables: { id: a.id}})}>delete</button>
+                </td>
               </tr>
             )
             )}
