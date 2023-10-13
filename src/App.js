@@ -5,8 +5,8 @@ import NewBook from './components/NewBook'
 import { useEffect, useState } from 'react'
 import { Link, Navigate, Route, Routes } from 'react-router-dom'
 import Logout from './components/Logout'
-import { useLazyQuery } from '@apollo/client'
-import { ME } from './queries'
+import { useLazyQuery, useSubscription } from '@apollo/client'
+import { BOOK_ADDED, ME } from './queries'
 import Recommendations from './components/Recommendations'
 
 const linkStyle = {
@@ -22,6 +22,12 @@ const App = () => {
   const [token, setToken] = useState(null)
   const [user, setUser] = useState(null)
   const [getUser, status] = useLazyQuery(ME)
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data }) => {
+      window.alert(`Book '${data.data.bookAdded.title}' added`)
+    }
+  })
 
   useEffect(() => {
     setToken(localStorage.getItem(LOCALSTORAGE_TOKEN))
