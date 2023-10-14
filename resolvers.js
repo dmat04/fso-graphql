@@ -25,8 +25,19 @@ const resolvers = {
       
       return query.populate('author')
     },
-    allAuthors: async () => {
-      return Author.find({})
+    allAuthors: async (parent, args, context, info) => {
+      const selectedFields = info.fieldNodes[0]?.selectionSet
+      const includeBooks = selectedFields.selections.find(({ name }) => {
+        return name.value === 'bookCount' || name.value === 'books'
+      })
+
+      const query = Author.find({})
+
+      if (includeBooks) {
+        query.populate('books')
+      }
+
+      return query
     },
     allGenres: async () => {
       const books = await Book.find({})
@@ -42,6 +53,11 @@ const resolvers = {
       return context.currentUser
     }
   },
+  Author: {
+    bookCount: (author) => {
+      return author.books?.length
+    }
+  },
   Mutation: {
     addBook: async (_, args, { currentUser }) => {
       if (!currentUser) {
@@ -50,10 +66,23 @@ const resolvers = {
         })
       }
 
+      const author = await Author.findById(args.author)
+      if (!author) {
+        throw new GraphQLError('Saving book failed - author not found', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.author,
+            error
+          }
+        })
+      }
+
       const book = new Book({ ...args })
       
       try {
         await book.save()
+        author.books.push(book._id)
+        await author.save()
       } catch (error) {
         throw new GraphQLError('Saving book failed', {
           extensions: {
